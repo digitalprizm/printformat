@@ -1,0 +1,310 @@
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%}
+    {% if letter_head and not no_letterhead %}
+    {% endif %}
+{%- endmacro -%}
+
+<div id="header-html" class="hidden-pdf">
+    <table class="table tableLogo">
+        <tr>
+          <td class="text-right logoBorderNone">
+            <img src="/files/logo Artwork_only logo.png"  class="img-responsive " alt ="dpi Logo" style="width: 180px !important;" align="right">
+          </td>
+        </tr>  
+        <tr>
+          <td class="logoBorderNone">
+			<h3>DigitalPrizm Infotech Private Limited</h3>
+			<p style="font-size:11px !important;"><b>No.402, Level 4, Sai Ram Apt., Vanaz, Kothrud, Pune - 411038, Maharashtra, India.</b>
+			</p>
+          </td>
+        </tr>
+    </table>
+</div>
+
+<div id="footer-html" class="visible-pdf">
+    {% if not no_letterhead and footer %}
+    <div class="letter-head-footer">
+        {{ footer }}
+    </div>
+    {% endif %}
+   
+    <p class="text-right small page-number visible-pdf" style="text-align: right;color:black !important;">
+    	{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+	</p>
+</div>
+
+
+<div class="row">
+	<div class="col-xs-12">
+		<div class="companyPayslip text-center">
+			<h3><b><u style="margin:1px; color:#000 !important;">Employee Pay Slip</u></b></h3>
+		</div>
+	</div>
+</div>
+
+<br>
+<br>
+<div class="row">        
+     <div class="col-xs-7">            
+        <div class="row">
+            <div class="col-xs-4 text-left"><label>EMP Name</label></div>
+            <div class="col-xs-8 "><b>{{doc.employee_name}} </b></div>
+        </div>
+        <div class="row">
+            <div class="col-xs-4 text-left"><label>EMP ID</label></div>
+            <div class="col-xs-8 ">{{doc.employee or ""}}</div>
+        </div>         
+	    <div class="row">
+	        <div class="col-xs-4 text-left"><label>Designation</label></div>
+	        <div class="col-xs-8 ">{{doc.designation or ""}}</div>
+	    </div>
+    </div> 
+    <div class="col-xs-5">
+        <div class="row">
+            <div class="col-xs-6 text-left"><label>Department</label></div>
+            <div class="col-xs-6 ">{{doc.department or ""}}</div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 text-left"> <label>Month & Year</label> </div>
+            <div class="col-xs-6 ">
+                {{ frappe.utils.get_datetime(doc.start_date).strftime('%B, %Y') }}
+            </div>
+        </div>    
+    </div>
+</div>
+
+<div class="row">
+	<div class=" col-xs-6 companyTable">
+		<table class="table-bordered tableWidth">
+
+			<tr>
+				<td><b>Earnings</b></td>
+				<td></td>
+			</tr>
+			{% set earn_length = doc.earnings|length %}
+
+                <tr>
+                    <td>{{ _("Basic & DA") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.earnings %}
+                        {%- if row.salary_component == "Basic & DA" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ _("House Rent Allowance") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.earnings %}
+                        {%- if row.salary_component == "House Rent Allowance" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("Conveyance") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.earnings %}
+                        {%- if row.salary_component == "Conveyance" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("Transporting Allowance") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.earnings %}
+                        {%- if row.salary_component == "Transporting Allowance" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("Other Allowances") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.earnings %}
+                        {%- if row.salary_component == "Other Allowances" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+            
+			{%- if earn_length < 10 -%}
+                {% set emp_row = 9-earn_length %}
+
+                {%- for i in range(1,emp_row) -%}
+                <tr style="height: 28px !important;">
+					<td> </td>
+					<td> </td>
+				</tr>
+				{%- endfor -%}
+			{%- endif -%}
+			<tr>
+				<td><b>Total Earning</b></td>
+				<td class="text-right"><b>{{doc.get_formatted("gross_pay")}}</b></td>
+			</tr>
+		</table>
+	</div>
+    
+	<div class=" col-xs-6 companyTable">
+		<table class="table-bordered tableWidth">
+			<tr>
+				<td><b>Deductions</b></td>
+				<td></td>
+			</tr>
+			{% set dedu_length = doc.deductions|length %}
+                <tr>
+                    <td>{{ _("Provident Fund") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.deductions %}
+                        {%- if row.salary_component == "Provident Fund" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    {% if "Provident Fund" not in doc.deductions %}
+                    {{"{0:0.2f}".format(0)}}
+                    {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("Professional Tax") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.deductions %}
+                        {%- if row.salary_component == "Professional Tax" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    {% if "Professional Tax" not in doc.deductions %}
+                    {{"{0:0.2f}".format(0)}}
+                    {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("E.S.I") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.deductions %}
+                        {%- if row.salary_component == "E.S.I" -%}
+                            {{"{0:0.2f}".format(row.amount)}}
+                        {% elif "E.S.I" not in row.salary_component %}
+                        {{"{0:0.2f}".format(0)}}
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("Loan") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.deductions %}
+                        {%- if row.salary_component == "Loan" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    {% if "Loan" not in doc.deductions %}
+                    {{"{0:0.2f}".format(0)}}
+                    {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("TDS/Income Tax") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.deductions %}
+                        {%- if row.salary_component == "TDS/Income Tax" -%}
+                            {{"{0:0.2f}".format(row.amount)}}
+                        {% endif %}
+                    {% endfor %}
+                    {% if "TDS/Income Tax" not in doc.deductions %}
+                    {{"{0:0.2f}".format(0)}}
+                    {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>{{ _("Unpaid Leave") }}</td>
+                    <td class="text-right">
+                    {% for row in doc.deductions %}
+                        {% if row.salary_component == "Unpaid Leave" -%}
+                        {{"{0:0.2f}".format(row.amount)}}
+                        {%- endif %}
+                    {% endfor %}
+                    {% if "Unpaid Leave" not in doc.deductions %}
+                    {{"{0:0.2f}".format(0)}}
+                    {% endif %}
+                    </td>
+                </tr>
+
+			{%- if dedu_length < 10 -%}
+                {% set emp_row = 10-dedu_length %}
+
+                {%- for i in range(1,emp_row) -%}
+                <tr style="height: 28px !important;">
+					<td> </td>
+					<td> </td>
+				</tr>
+				{%- endfor -%}
+			{%- endif -%}
+			<tr>
+				<td><b>Total Deduction</b></td>
+				<td class="text-right"><b>{{doc.get_formatted("total_deduction") or "0"}}</b></td>
+			</tr>
+		</table>
+	</div>
+</div>
+<br>
+<hr style="margin:1px; border-top: 1px solid #000 !important; ">
+<br>
+<div class="row">
+    <div class="col-xs-6"><b>{{ doc.total_in_words or ""}}</b></div>
+    <div class="col-xs-6 text-right">
+    <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Total Addition") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("gross_pay") or '' }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Total Deduction") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("total_deduction") or '' }}
+            </div>
+        </div>
+      	<hr style="margin:1px; border-top: 1px solid #000 !important;">
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("NET Salary") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                <b>{{ doc.get_formatted("net_pay") or '' }}</b>
+            </div>
+        </div>
+    </div>
+</div>  
+
+<br>
+{%- if doc.is_return ==0 -%}
+    <div class="row">
+     	<div class="col-xs-12 text-left">{{ doc.terms or '' }}</div>
+    </div>
+{%- endif -%}
+
+<div class="row">
+	<div class="col-xs-12">
+		<div class="companyWithoutsignature text-center">
+			<h3>{{"*** This is computer generated pay slip no signature required***"}}</h3>
+		</div>
+	</div>
+</div>

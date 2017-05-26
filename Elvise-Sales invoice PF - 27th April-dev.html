@@ -1,0 +1,539 @@
+
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%}
+    {% if letter_head and not no_letterhead %}
+    {% endif %}
+    
+{%- endmacro -%}
+
+<div id="header-html" class="hidden-pdf">
+   
+</div>           
+
+ <table class="table table-condensed table-bordered tableCentered tableLogo">
+    {% set company = frappe.get_doc("Company", doc.company) %}
+        <tr style="border:none !important;">
+          <td  class="lineSpace" rowspan="2" style="border:none !important;">
+            <img src="{{company.company_logo}}" alt = "Levis Logo" style="width:150px !important;">
+          </td>
+          <td  class="lineSpace" rowspan="2" style="border:none !important;">
+                <p class = "line_height" style="font-size:16px; padding-top:5px !important;"><label></label></p>
+                
+                <p class = "line_height">{{ company.address or "FF BEAUTY S.R.L. UNIPERSONALE<p>VIA GIULIO CESARE , 27<p>RICCIONE<p>TEL: 0541648798 <p>EMAIL: INFO@FFBEAUTY.IT <p>P.I. 04281990400" }}</p>
+                {%- if company.phone_no -%}
+                    <p class = "line_height">{{ _("Phone")}} : {{ company.phone_no or "" }}</p>
+                {%- endif -%}
+                {%- if company.fax -%}
+                    <p class = "line_height">{{ _("FAX")}} :{{ company.fax or "" }}</p>
+                {%- endif -%}
+                {%- if company.email -%}
+                    <p class = "line_height">{{ _("Email")}} :{{ company.email or ""}}</p>
+                {%- endif -%}
+                {%- if company.website -%} 
+                    <p class = "line_height">{{ _("Website")}} :{{ company.website or "" }}</p>
+                {%- endif -%}
+          </td>
+          <td class="lineSpace">{{ _("Billing Address") }} : 
+                <p><b>{{ doc.customer_name }}</b><p>
+                <p>{{ doc.address_display or ''}}<p>
+          </td>
+        </tr>  
+        <tr style="border:none !important;">
+        {% set shipping_address_title = frappe.get_doc("Address", doc.shipping_address_name) %}
+          <td class="lineSpace">{{ _("Shipping Address") }} :
+                <p><b>{{ shipping_address_title.address_title }}</b><p>
+                <p>{{ doc.shipping_address or ''}}<p>
+          </td>
+        </tr>
+    </table>
+
+<div id="footer-html" class="visible-pdf">
+    {% if not no_letterhead and footer %}
+    <div class="letter-head-footer">
+        {{ footer }}
+    </div>
+    {% endif %}
+   
+    <p class="text-right small page-number visible-pdf" style="text-align: right;color:black !important;">
+    {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+</p>
+</div>
+
+<div style="min-height: 1px;"> </div>
+
+<table class="table table-condensed table-bordered tableCentered">
+    <tr>
+      <td>
+            <p class="tipoDoc"> {{ _("Type of Document") }}</p>
+            
+            <p> {{ doc.document_type or "" }}</p>
+      </td>
+
+      {% set customer = frappe.get_doc("Customer", doc.customer) %}
+      <td>
+            <p class="tipoDoc"> {{ _("Date") }}</p>
+            <p> {{ doc.get_formatted("posting_date") }}</p>
+      </td>
+      <td>
+            <p class="tipoDoc"> {{ _("Numero") }}</p>
+            
+            <p> {{ doc.name or ""}}</p>
+      </td> 
+      <td colspan="2">
+            <p class="tipoDoc"> {{ _("customer vat number") }}</p>
+            {%- if customer.tax_id or customer.codice_fiscale -%}
+                <p> {{ customer.tax_id or "" }} / {{customer.codice_fiscale or ""}}</p>
+            {%- endif -%}
+      </td>
+    </tr> 
+
+    <tr>
+      <td>
+            <p class="tipoDoc"> {{ _("Agent") }}</p> 
+            {% set customer = frappe.get_doc("Customer", doc.customer) %}
+                        
+            {%- if doc.sales_team -%}
+                <p>{{ doc.sales_team[0].sales_person or "" }}</p> 
+            {%- else -%}
+                <p> {{doc.default_sales_partner or ""}}</p> 
+            {%- endif -%}
+      </td>
+      <td colspan="3">
+            <p class="tipoDoc"> {{ _("Mode of Payment") }}</p>
+            
+            <p> {{ doc.mode_of_payment or "" }}</p>
+      </td>
+      <td colspan="2">
+            <p class="tipoDoc"> {{ _("Reason for Transportation") }}</p>
+            
+            <p>{{doc.reason_for_transportation or ""}}</p>
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="6">
+            <p class="tipoDoc"> {{ _("Bank Name") }}</p>
+            
+            <p> {{doc.bank_name or "IT50C0605524100000000002412"}}</p>
+        </td>
+    </tr>
+</table>
+<table class="table table-condensed table-bordered tableCentered">
+    <tr>
+        <th>{{ _("Item Code") }}</th>
+        <th>{{ _("Description") }}</th>
+        <th>{{ _("Unit") }}</th>
+        <th>{{ _("Quantity") }}</th>
+        <th>{{ _("Price") }}</th>
+        <th>{{ _("Discount") }}</th>
+        <th>{{ _("Sub Total") }}</th>
+        <th>{{ _("Tax") }}</th>
+    </tr>
+    {%- for row in doc.items -%}
+            <tr>
+                <td style="width: 5% !important;">{{ row.item_code or '' }}</td>
+
+                <td style="width: 32%;font-weight: normal;font-size:12px;">
+                <!-- {% if row.in_format_data("image") and row.get("image") -%}
+                    <div class=pull-left" style="max-width: 20%; margin-right: 10px;">
+                        <img src="{{ row.image }}" style="max-width: 100%">
+                    </div>
+                {%- endif %}  -->
+                    {{ row.item_name or '' }}
+                </td>
+
+                <td style="width: 7%; text-align: center;">{{ row.stock_uom }}</td>
+
+                <td style="width: 9%; text-align: center;">{{ row.qty }}</td>
+
+                <td style="width: 9%; text-align: right;">
+                    {{  "{0:0.2f}".format(row.price_list_rate)  or ''}}
+                </td>
+
+                <td style="width: 9%; text-align: right;">
+                    {% set discount = ((row.price_list_rate*row.discount_percentage)/100)*row.qty %}
+                    {{ "{0:0.2f}".format(discount)  or '0'}}
+                </td>
+                <td style="width: 15% !important; text-align: right;">
+                   {{ "{0:0.2f}".format(row.amount)  or '0'}}
+                </td>
+                 {% set item = frappe.get_doc("Item", row.item_code) %}
+                <td style="width: 15% !important; text-align: right;"> 
+                    {%- for item_tax_row in item.taxes -%}
+                        {{ "{0:0.2f}".format(item_tax_row.tax_rate) or "" }}
+                    {%- endfor -%}
+                </td>
+            </tr>
+
+
+        <!-- loop index % 20 -->
+        {% if loop.index % 20==0 -%}
+            </tbody>
+            </table>
+        <div class="page-break"></div> 
+        
+         <table class="table table-condensed table-bordered tableCentered tableLogo">
+                <tr style="border:none !important;">
+                  <td class="lineSpace" rowspan="2" style="border:none !important;">
+                    <img src="/files/images.jpg" alt = "Levis Logo" style="width:150px !important;">
+                  </td>
+                  <td  class="lineSpace"  rowspan="2" style="border:none !important;">
+                        <p class = "line_height" style="font-size:16px; padding-top:5px !important;"><label>{{ doc.company or "" }}</label></p>
+                        {% set company = frappe.get_doc("Company", doc.company) %}
+                        <p class = "line_height">{{ company.address  }}</p> 
+                  </td>
+                  <td class="lineSpace">{{ _("Billing Address") }} : 
+                        <p><b>{{ doc.customer_name }}</b><p>
+                        <p>{{ doc.address_display or ''}}<p>
+                  </td>
+                </tr>  
+                <tr style="border:none !important;">
+                  <td class="lineSpace">{{ _("Shipping Address") }} :
+                        <p><b>{{ doc.shipping_address_name }}</b><p>
+                        <p>{{ doc.shipping_address or ''}}<p>
+                  </td>
+                </tr>
+            </table>
+            <div style="min-height: 1px;"> </div>
+
+            <table class="table table-condensed table-bordered tableCentered">
+                <tr>
+                  <td>
+                        <p class="tipoDoc"> {{ _("Type of Document") }}</p>
+                        
+                        <p> {{ doc.document_type or "" }}</p>
+                  </td>
+
+                  {% set customer = frappe.get_doc("Customer", doc.customer) %}
+                  <td>
+                        <p class="tipoDoc"> {{ _("Date") }}</p>
+                        <p> {{ doc.get_formatted("posting_date") }}</p>
+                  </td>
+                  <td>
+                        <p class="tipoDoc"> {{ _("Numero") }}</p>
+                        
+                        <p> {{ doc.name or ""}}</p>
+                  </td> 
+                  <td colspan="2">
+                        <p class="tipoDoc"> {{ _("customer vat number") }}</p>
+                        {%- if customer.tax_id or customer.codice_fiscale -%}
+                            <p> {{ customer.tax_id or "" }} / {{customer.codice_fiscale or ""}}</p>
+                        {%- endif -%}
+                  </td>
+                </tr> 
+
+                <tr>
+                  <td>
+                        <p class="tipoDoc"> {{ _("Agent") }}</p> 
+
+                        {% set customer = frappe.get_doc("Customer", doc.customer) %}
+                        
+                        {%- if doc.sales_team -%}
+                        <p>{{ doc.sales_team[0].sales_person or "" }}</p>
+                        {%- else -%}
+                            <p> {{doc.default_sales_partner or ""}}</p> 
+                        {%- endif -%}
+                  </td>
+                  <td colspan="3">
+                        <p class="tipoDoc"> {{ _("Mode of Payment") }}</p>
+                        
+                        <p> {{ doc.mode_of_payment or "" }}</p><br>
+                  </td>
+                  <td colspan="2">
+                        <p class="tipoDoc"> {{ _("Reason for Transportation") }}</p>
+                        <p>{{doc.reason_for_transportation or ""}}</p><br>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colspan="6">
+                        <p class="tipoDoc"> {{ _("Bank Name") }}</p>
+                        
+                        <p> {{doc.bank_name or ""}}</p>
+                    </td>
+                </tr>
+            </table>
+
+
+
+        <table class="table table-condensed table-bordered tableCentered">
+        <tr>
+            <th>{{ _("Item Code") }}</th>
+            <th>{{ _("Description") }}</th>
+            <th>{{ _("Unit") }}</th>
+            <th>{{ _("Quantity") }}</th>
+            <th>{{ _("Price") }}</th>
+            <th>{{ _("Discount") }}</th>
+            <th>{{ _("Sub Total") }}</th>
+            <th>{{ _("Tax") }}</th>
+        </tr>
+        {%- endif %}
+   
+        {% if row.page_break -%}
+            </tbody>
+            </table>
+        <div class="page-break"></div> 
+
+        <table class="table table-condensed table-bordered tableCentered tableLogo">
+            <tr style="border:none !important;">
+              <td rowspan="2" style="border:none !important;">
+                <img src="/files/images.jpg" alt = "Levis Logo" style="width:150px !important;">
+              </td>
+              <td class="lineSpace" rowspan="2" style="border:none !important;">
+                    <p class = "line_height" style="font-size:16px; padding-top:5px !important;"><label>{{ doc.company or "" }}</label></p>
+                    {% set company = frappe.get_doc("Company", doc.company) %}
+                    <p class = "line_height">{{ company.address  }}</p> 
+              </td>
+              <td class="lineSpace">{{ _("Billing Address") }} : 
+                    <p><b>{{ doc.customer_name }}</b><p>
+                    <p>{{ doc.address_display or ''}}<p>
+              </td>
+            </tr>  
+            <tr style="border:none !important;">
+              <td class="lineSpace">{{ _("Shipping Address") }} :
+                    <p><b>{{ doc.shipping_address_name }}</b><p>
+                    <p>{{ doc.shipping_address or ''}}<p>
+              </td>
+            </tr>
+        </table>
+        <table class="table table-condensed table-bordered tableCentered">
+        <tr>
+            <th>{{ _("Item Code") }}</th>
+            <th>{{ _("Description") }}</th>
+            <th>{{ _("Unit") }}</th>
+            <th>{{ _("Quantity") }}</th>
+            <th>{{ _("Price") }}</th>
+            <th>{{ _("Discount") }}</th>
+            <th>{{ _("Sub Total") }}</th>
+            <th>{{ _("Tax") }}</th>
+        </tr>
+        {%- endif %}
+        {%- endfor -%}
+
+        {% set item_length = doc.items|length %}
+
+        {%- if item_length <=17 -%}
+                {% set emp_row = 17-item_length %}
+
+                {%- for i in range(1,emp_row) -%}
+                <tr>
+                    <td style="width: 5%;"> </td>
+
+                    <td style="width: 32%;font-weight: normal;font-size:12px;">
+                        
+                    </td>
+
+                    <td style="width: 7%; text-align: center;"></td>
+
+                    <td style="width: 9%; text-align: center;"></td>
+
+                    <td style="width: 9%; text-align: right;">
+                        
+                    </td>
+
+                    <td style="width: 9%; text-align: right;">
+                       
+                    </td>
+                    <td style="width: 15%; text-align: right;"></td>
+
+                    <td style="width: 15%; text-align: right;"> 
+                        
+                    </td>
+                </tr>
+                {%- endfor -%}
+        {%- endif -%}
+
+        {%- if item_length >18 -%}
+                {% set emp_row = 18%item_length %}
+
+                {%- for i in range(1,emp_row) -%}
+                <tr>
+                    <td style="width: 15%;"> </td>
+
+                    <td style="width: 20%;font-weight: normal;font-size:12px;">
+                        
+                    </td>
+
+                    <td style="width: 7%; text-align: center;"></td>
+
+                    <td style="width: 9%; text-align: center;"></td>
+
+                    <td style="width: 10%; text-align: right;">
+                        
+                    </td>
+
+                    <td style="width: 9%; text-align: right;">
+                       
+                    </td>
+                    <td style="width: 15%; text-align: right;"></td>
+
+                    <td style="width: 15%; text-align: right;"> 
+                        
+                    </td>
+                </tr>
+                {%- endfor -%}
+        {%- endif -%}
+    
+</table>
+<table class="table table-condensed table-bordered tableCentered tableSized">
+    <tr>
+        <td rowspan="2">
+            <p class="tipoDoc" >{{ _("Sub Total") }}: </p>
+            <p class="text-right">{{doc.get_formatted("total")|replace("€", "") or ""}}</p>
+        </td>
+        <td rowspan="2">
+            <p class="tipoDoc" > % {{ _("IVA") }}: </p>
+
+
+            {%- for row in doc.taxes -%}
+            {%- if not row.included_in_print_rate -%}
+            {%- if row.tax_amount and row.description != doc.shipping_rule -%}   
+
+                {{ row.description }}  
+            {%- endif -%}
+            {%- endif -%}
+            {%- endfor -%} 
+        </td>
+        <td rowspan="2">
+            <p class="tipoDoc" >{{ _("Value Tax") }}:</p>
+            {%- for row in doc.taxes -%}
+            {%- if not row.included_in_print_rate -%}
+            {%- if row.tax_amount and row.description != doc.shipping_rule -%}   
+            <p class="text-right">{{row.get_formatted("tax_amount_after_discount_amount")|replace("€", "") or ""}}</p>
+            {%- endif -%}
+            {%- endif -%}
+            {%- endfor -%} 
+        </td>
+        <td rowspan="2" colspan="2">
+            <p class="tipoDoc" >{{ _("Terms and Conditions") }}: </p> 
+            <p class="text-left"> {{ doc.terms or '' }} </p>
+        </td>
+        
+        <td>
+            <p class="tipoDoc" >{{ _("Discount") }} : </p>
+            <p class="text-right"> {{doc.get_formatted("total_item_discount")|replace("€", "") or ""}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p class="tipoDoc" >{{ _("Rebates") }}:</p>
+            <p class="text-right"> {{doc.get_formatted("rebates")|replace("€","") or ""}} </p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p class="tipoDoc" >{{ _("Total Taxable") }}: </p>
+            <p class="text-right">
+
+
+            {{doc.get_formatted("total")|replace("€", "") or ""}}
+
+            </p>
+        </td>
+        <td colspan="2">
+            <p class="tipoDoc" >
+            {{ _("Total Value Tax") }}: </p>
+            <p class="text-right">
+
+
+                {% set foobar = {'value': 99}  %}
+                {% set isshipping = {'value': 1}  %}
+
+                {%- for row in doc.taxes -%}
+                {%- if not row.included_in_print_rate -%}
+                {%- if row.tax_amount and row.description == doc.shipping_rule-%}  
+                    {% if foobar.update({'value': (doc.total_taxes_and_charges-row.tax_amount) }) %}
+                    {% endif %}
+                    {% if isshipping.update({'value': 2 }) %}
+                    {% endif %}
+
+                {%- endif -%}
+                {%- endif -%}
+                {%- endfor -%} 
+
+            {%- if isshipping['value'] == 2 -%}
+                            {{ foobar['value'] }}
+            {%- else -%}
+                {{doc.get_formatted("base_total_taxes_and_charges")|replace("€", "") or ""}}
+            {%- endif -%}
+            
+
+            </p>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Total Exempt") }}: </p> 
+            <p class="text-right"> {{doc.get_formatted("exempt_total")|replace("€","") or ""}}
+        </td>
+
+        <td>
+            <p class="tipoDoc" >{{ _("Shipping Cost") }}: </p> 
+            <p class="text-right">
+            {%- for row in doc.taxes -%}
+            {%- if not row.included_in_print_rate -%}
+            {%- if row.tax_amount and row.description == doc.shipping_rule -%}   
+                {{ row.get_formatted("tax_amount")|replace("€", "") or "" }} 
+            {%- endif -%}
+            {%- endif -%}
+            {%- endfor -%} 
+            </p>
+        </td>
+
+        <td>
+            <p class="tipoDoc" >{{ _("Collection Cost") }}: </p>
+            <p class="text-right"> {{doc.get_formatted("collection_charges")|replace("€", "") or ""}}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p class="tipoDoc" >{{ _("Transportation by the") }}: </p>
+            <p class="text-right">{{doc.transportation_by_the or ""}} 
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Port") }}: </p> 
+            
+            <p class="text-right"> {{doc.port or ""}} 
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Colli") }}: </p> 
+            <p class="text-right">  </p>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Heritage and weight Appearance ") }}: </p> 
+            
+            <p class="text-right">{{doc.heritage_and_weight_appearance or ""}}
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Data trasporto") }}: </p> 
+            <p class="text-right"> {{doc.get_formatted("transport_date") or ""}} </p>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Total Documents") }}: </p>
+            <p class="text-right"> {{doc.get_formatted("total")|replace("€", "") or ""}} </p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <p class="tipoDoc" > {{ _("Vector Driver ") }}:  </p><br><br>
+        </td>
+        <td colspan="2">
+            <p class="tipoDoc" > {{ _("Driver Signature") }}: </p> <br><br>
+        </td>
+        <td>
+            <p class="tipoDoc" > {{ _("Recipient Signature") }}: </p> <br><br>
+        </td>
+        <td>
+            <p class="tipoDoc"> <b>{{ _("Grand Total") }}: </b> </p>
+            <p class="text-right"> {{doc.get_formatted("grand_total")|replace("€", "") or ""}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <p class="tipoDoc" > {{ _("Note") }}:</p>
+            <p class="text-left">{{doc.note or ""}}  </p> <br>
+        </td>
+        <td colspan="2">
+            <p class="tipoDoc" > {{ _("Due Date") }}:</p> 
+            <p class="text-left"> {{doc.get_formatted("due_date")}} - {{doc.get_formatted("grand_total") or ""}} 
+            </p> <br><br>
+        </td>
+    </tr>
+</table>

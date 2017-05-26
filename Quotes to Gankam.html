@@ -1,0 +1,317 @@
+{%- from "templates/print_formats/standard_macros.html" import add_header,
+     render_field -%}
+<div id="header-html" class="hidden-pdf">
+            <div class="row">        
+                <div class="col-xs-3"> 
+                    <img src="/files/GANAKAM LOGO.bmp" alt = "Ganakam Logo">
+                </div>
+                <div class="col-xs-5"> 
+                    <p style="font-size: 14px"><label>Ganakam Sales and Services</label></p>
+                    <p class = "line_height">Patang Plaza, Phase-III, A-11,</p>
+                    <p class = "line_height">Behind Bharati Vidyapeeth,</p>
+                    <p class = "line_height">Katraj, Pune-411046, Maharashtra,India.</p>
+                    <p class = "line_height">M:9823379999 </p>
+                    <p class = "line_height">Email: ganakam9999@gmail.com</p>
+                    <p class = "line_height">VAT:27271078779V  CST:27271078779C</p>
+                </div>
+                <div class="col-xs-4" >
+                    <div class ="row">
+                        <div class="col-xs-12 text-right">
+                            <label>Quotation</label><br>
+                        </div>
+                    </div>
+                    <div class ="row">
+                        <div class="col-xs-12">
+                            <table class="table table-condensed table-bordered header-table linesmall tableLine">
+                                <tr>
+                                    <td>Quotation No:</td>
+                                    <td>{{ doc.name }}</td>
+                                <tr>
+                                <tr>
+                                    <td>Date: </td>
+                                    <td>{{ doc.get_formatted("transaction_date") or ''}}</td>
+                                <tr>
+                                <tr>
+                                    <td>Shipping Date:</td>
+                                    <td>{{ doc.get_formatted("shipping_date") or '' }}</td>
+                                <tr>
+                                <tr>
+                                    <td>Request No:</td>
+                                    <td>{{ doc.order_no or ''}}</td>
+                                <tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>   
+            <div class="row">
+                <div class="col-xs-9 text-right"><label>To respected:</label></div>
+                <div class="col-xs-3 text-left"> {{ doc.contact_person or '' }}</div>
+            </div>  
+
+</div>
+<div>
+    <div id="footer-html" class="visible-pdf">
+        {% if not no_letterhead and footer %}
+        <div class="letter-head-footer">
+            {{ footer }}
+        </div>
+        {% endif %}
+        <p class="text-right small page-number visible-pdf">
+            {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+        </p>
+    </div>
+
+
+<hr>
+
+<div class="row">
+    <div class = "col-xs-12 text-left" ><label>Bill and Ship to,</label></div>
+    
+</div>
+<div class="row">
+    <div class = "col-xs-12 text-left" >
+        <p class = "line_height">The Director,</p>
+        <p class = "line_height">Interactive Research School for Health Affairs,</p>
+        <p class = "line_height">Bharati Vidyapeeth University, Dhanakawadi</p>
+        <p class = "line_height">Pune-411043</p>
+    </div>
+    
+</div>
+</div>
+
+<table class="table table-condensed table-bordered">
+        <tr>
+            <th class="text-center">No.</th>
+            <th class="text-center">Description</th>
+            <th class="text-center">Qty</th>
+            <th class="text-center">Amount</th>
+        </tr>
+        {%- for row in doc.items -%}
+        <tr>
+            <td style="width: 3%;">{{ row.idx }}</td>
+            <td style="width: 52%;line-height:13px;">
+    {% if row.in_format_data("image") and row.get("image") -%}
+<div class="pull-left" style="max-width: 20%; margin-right: 10px;">
+    <img src="{{ row.image }}" style="max-width: 100%">
+</div>
+{%- endif %} 
+
+                 <b>{{ row.item_code or '' }} </b><br>
+                 {{ row.description or '' }}  </td>
+            <td style="width: 10%; text-align: right;">{{ row.qty }} {{ row.stock_uom }} </td>
+            <td style="width: 13%; text-align: right;">
+                {{row.get_formatted("amount", doc) or ''}}
+            </td>
+        </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+
+
+
+
+
+<!-- <div class="row">
+    <div class="col-xs-7 text-left">{{ doc.in_words or ""}}</div>
+    <div class="col-xs-5 text-right">
+        <div class="row">
+            <div class="col-xs-7">
+                <label>{{ _("Sub Total") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("total") or '' }}
+            </div>
+        </div>
+    </div>
+</div>  
+
+{%- if doc.discount_amount -%}
+    <div class="row">
+        <div class="col-xs-7 text-right"></div>
+        <div class="col-xs-5 text-right">
+            <div class="row">
+                <div class="col-xs-7">
+                    <label>{{ _("Discount") }}</label>  
+                </div>
+                <div class="col-xs-5 text-right">
+                    {{ doc.get_formatted("discount_amount") or '' }}
+                </div>
+            </div>
+        </div>
+    </div>  
+{%- endif -%}  
+
+{%- for row in doc.taxes -%}
+    {%- if not row.included_in_print_rate -%}
+        {%- if row.tax_amount -%}      
+        <div class="row">
+            <div class="col-xs-7 text-right"></div>
+            <div class="col-xs-5 text-right">
+                <div class="row">
+                    <div class="col-xs-7">
+                        <label>{{ row.description }}</label>  
+                    </div>
+                    <div class="col-xs-5 text-right">
+                        {{ row.get_formatted("tax_amount",doc) or '' }}
+                    </div>
+                </div>
+            </div>
+        </div>  
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor -%} -->
+
+       
+
+<!-- <div class="row">
+    <div class="col-xs-7 text-right">
+        
+    </div>
+    <div class="col-xs-5 text-right">
+        <div class="row">
+            <div class="col-xs-7">
+                <label>{{ _("Rounded Total") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("total") or '' }}
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div class="row">
+    <div class="col-xs-7 text-left">
+        Note: {{doc.notes or ''}}
+    </div>
+    <div class="col-xs-5 text-right">
+        <div class="row">
+            <hr>
+            <div class="col-xs-7">
+                <label>{{ _("Total") }}</label>  
+            </div>
+
+            <div class="col-xs-5 text-right">
+
+               <b> {{ doc.get_formatted("grand_total") or '' }}</b>
+            </div>
+        </div>
+    </div>
+</div>  -->
+
+
+<!-- new code -->
+<div class="row">
+    <div class="col-xs-7">{{ doc.in_words or ""}}</div>
+    <div class="col-xs-5 text-right">
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Sub Total") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("total") or '' }}
+            </div>
+
+        </div>
+        {%- for row in doc.taxes -%}
+        {%- if not row.included_in_print_rate -%}
+        {%- if row.tax_amount -%}   
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ row.description }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+               {{ row.get_formatted("tax_amount",doc) or '' }}
+            </div>
+        </div>
+        {%- endif -%}
+        {%- endif -%}
+        {%- endfor -%}
+        {%- if doc.discount_amount -%}
+
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Discount") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("discount_amount") or '' }}
+            </div>
+        </div>
+         {%- endif -%}         
+        <!-- <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Rounded Total") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("total") or '' }}
+            </div>
+        </div> -->
+        <hr>
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Total") }}</label>
+            </div>
+            <div class="col-xs-5 text-right">
+                <b> {{ doc.get_formatted("grand_total") or '' }}</b>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+     <div class="col-xs-12 text-left">Note : {{ doc.note or '' }}</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br>
+{%- if doc.is_return ==0 -%}
+    <div class="row">
+     <div class="col-xs-12 text-left">{{ doc.terms or '' }}</div>
+    </div>
+{%- endif -%}
+
+<br></br>
+<!-- <div class="row">
+    <div class="col-xs-6">Received By</div>
+    <div class="col-xs-6 text-right">Prepared By
+     <br>Administrator</br>
+    </div>
+</div>  -->
+
+
+
+<!-- <div class="row" style ="color:blue; font-size: 14px;">
+    <div class = "col-xs-12 text-center">
+        <p style="line-height: 10px;">  |INSTRUMENTS|CONSUMABLES|LAB and ANIMAL HOUSE SETUP|SERVICES|
+        Pune Office: 2, Sinhgadh Nisarg, Ambegav Pathar, Sr. No. 15, Katraj, Pune: 411046, MH;
+        India. </p>
+    </div>
+</div>
+<div class="row" style ="color:blue; font-size: 14px;">
+    <div class = "col-xs-6 text-right" >M : +91-8390095759 | 9510910091</div>
+    <div class = "col-xs-6 text-left">Email : duallife@outlook.in</div>
+</div> -->
+
+<div class="page-break"></div>

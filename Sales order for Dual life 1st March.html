@@ -1,0 +1,258 @@
+{%- from "templates/print_formats/standard_macros.html" import add_header, render_field -%}
+<div id="header-html" class="hidden-pdf">
+    <table class="table table-condensed tableCentered tableLogo">
+        <tr style="border:none !important;">
+          <td rowspan="2" style="border:none !important;">
+            <img src="/files/images.jpg" alt = "Levis Logo" style="height: 100%; width:100%;">
+          </td>
+          <td rowspan="2" style="border:none !important;">
+                <p style="font-size:16px"><label>{{ _("Ooops") }}</label></p>
+                <p class = "line_height">{{ _("Borgo Cinque Torri, 5") }}</p>
+                <p class = "line_height">{{ _("Todi- 06059") }}</p>
+                <p class = "line_height">{{ _("Perugia") }}</p>
+                <p class = "line_height">{{ _("Umbria") }}</p> 
+          </td>
+          <td>{{ _("Billing Address") }} : 
+                <p><b>{{ doc.customer_name }}</b><p>
+                <p>{{ doc.address_display or ''}}<p>
+          </td>
+        </tr>  
+        <tr style="border:none !important;">
+          <td>{{ _("Shipping Address") }} :
+                <p><b>{{ doc.shipping_address_name }}</b><p>
+                <p>{{ doc.shipping_address or ''}}<p>
+          </td>
+        </tr>
+    </table>
+</div>           
+
+
+
+
+<div id="footer-html" class="visible-pdf">
+    {% if not no_letterhead and footer %}
+    <div class="letter-head-footer">
+        {{ footer }}
+    </div>
+    {% endif %}
+
+    <hr>
+    <p class="text-right small page-number visible-pdf" style="text-align: right;color:black !important;">
+        {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+    </p>
+</div>
+
+<br style="line-height: 1px;">
+<table class="table table-condensed table-bordered tableCentered tableSized">
+    <tr>
+      <td>
+            <p class="tipoDoc"> {{ _("Tipo di Documento") }}</p>
+            <!-- <p> {{ _(">Fattura Accompagnatoria<") }}</p> -->
+            <p> {{ doc.name or "" }}</p>
+      </td>
+      <td>
+            <p  class="tipoDoc"> {{ _("Cliente Nr.") }}</p>
+            <p> {{ _(">729<") }}</p>
+            
+      </td>
+      <td>
+            <p class="tipoDoc"> {{ _("Date") }}</p>
+            <p> {{ doc.get_formatted("posting_date") }}</p>
+      </td>
+      <td>
+            <p class="tipoDoc"> {{ _("Numero") }}</p>
+            <!-- <p> {{ _(">33<") }}</p> -->
+            <p> {{ doc.number or ""}}</p>
+      </td>
+      <td>
+            <p class="tipoDoc"> {{ _("pagina") }}</p>
+            <!-- <p class="text-right small page-number visible-pdf">
+            {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+            </p> -->
+
+      </td>
+      <td>
+            <p class="tipoDoc"> {{ _("Customer VAT Number") }}</p>
+            <!-- <p> {{ _(">P.IVA:04281990400 C.F.:04281990400<") }}</p> -->
+            <p> {{ doc.customer_vat_number or "" }}</p>
+      </td>
+    </tr> 
+
+    <tr>
+      <td>
+            <p class="tipoDoc"> {{ _("Agent") }}</p> 
+            <p> {{doc.agent or ""}}</p><br>
+      </td>
+      <td colspan="3">
+            <p class="tipoDoc"> {{ _("Mode of Payment") }}</p>
+            <!-- <p> {{ _(">BONIFICO BANCARIO D<") }}</p> -->
+            <p> {{ doc.mode_of_payment or "" }}</p><br>
+      </td>
+      <td colspan="2">
+            <p class="tipoDoc"> {{ _("Causale del trasporto") }}</p>
+            <!-- <p> {{ _(">VENDITA<") }}</p>  -->
+            <p>{{doc.reason_for_transportation or ""}}</p><br>
+      </td>
+    </tr> 
+
+    <tr>
+      <td colspan="6">
+            <p class="tipoDoc"> {{ _("Banca di appoggio") }}</p>
+            <!-- <p> <b>{{ _(">Banca Unicredit- Agenzia n 07158 Umb (PG)<") }} </b></p> -->
+            <p> {{doc.bank_support or ""}}</p>
+        </td>
+    </tr>
+
+    <tr>
+      <td colspan="6">
+            <p style = "font-size: 14px !important; text-align: center;"> <b>{{ _("Intestazione Assegno:") }} {{ _(">Tigani Gianfranco & Domenico snc<") }}</b></p>
+      </td>
+    </tr>
+ </table>
+<table class="table table-condensed table-bordered tableCentered">
+    <tr>
+        <th>{{ _("Item Code") }}</th>
+        <th>{{ _("Description") }}</th>
+        <th>{{ _("Unit") }}</th>
+        <th>{{ _("Quantity") }}</th>
+        <th>{{ _("Price") }}</th>
+        <th>{{ _("Discount") }}</th>
+        <th>{{ _("Sub total") }}</th>
+        <th>{{ _("Tax") }}</th>
+    </tr>
+    {%- for row in doc.items -%}
+    <tr>
+        <td style="width: 15%;">{{ row.item_code or '' }}</td>
+
+        <td style="width: 35%;font-weight: normal;font-size:12px;">
+            {% if row.in_format_data("image") and row.get("image") -%}
+            <div class=pull-left" style="max-width: 20%; margin-right: 10px;">
+                <img src="{{ row.image }}" style="max-width: 100%">
+            </div>
+            {%- endif %} 
+            {{ row.item_name or '' }}
+        </td>
+
+        <td style="width: 7%; text-align: center;">{{ row.stock_uom }}</td>
+
+        <td style="width: 8%; text-align: center;">{{ row.qty }}</td>
+
+        <td style="width: 10%; text-align: right;">
+            {{  "{0:0.2f}".format(row.base_price_list_rate)  or ''}}
+        </td>
+
+        <td style="width: 8%; text-align: right;">
+            {% set discount = ((row.base_price_list_rate*row.discount_percentage)/100)*row.qty %}
+            {{ "{0:0.2f}".format(discount)  or '0'}}
+        </td>
+        <td style="width: 20%; text-align: right;">{{doc.get_formatted("total")|replace("€", "") or ""}}</td>
+
+        <td style="width: 10%; text-align: right;"> {{doc.taxes_and_charges or ""}}
+        </td>
+    </tr>
+    {%- endfor -%}
+</table>
+<table class="table table-condensed table-bordered tableCentered tableSized">
+    <tr>
+        <td rowspan="2">
+            <p class="tipoDoc" >{{ _("Imponible") }}: </p>
+            <p>{{doc.get_formatted("total")|replace("€", "") or ""}}</p>
+        </td>
+        <td rowspan="2">
+            <p class="tipoDoc" > % {{ _("IVA") }}: </p> <br>
+        </td>
+        <td rowspan="2">
+            <p class="tipoDoc" >{{ _("Imposta") }}:</p> <br>
+            <p>{{doc.get_formatted("taxes_and_charges")|replace("€", "") or ""}}</p>
+        </td>
+        <td rowspan="2" colspan="2">
+            <p class="tipoDoc" >{{ _("INFORMATIVA SULLA PRIVACY") }}: </p> <br>
+            <p> {{ doc.terms or '' }} </p>
+        </td>
+        
+        <td>
+            <p class="tipoDoc" >{{ _("Discount") }} %: </p>
+            <p> {{doc.get_formatted("discount_amount")|replace("€", "") or ""}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p class="tipoDoc" >{{ _("Abbuoni") }}:</p>
+            <p> {{doc.get_formatted("rebates")|replace("€","") or ""}} </p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p class="tipoDoc" >{{ _("Totale Imponible") }}: </p> <br>
+        </td>
+        <td colspan="2">
+            <p class="tipoDoc" >{{ _("Totale Imposta") }}: </p> <br>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Totale Esente") }}: </p> 
+            <p> {{doc.get_formatted("exempt_total")|replace("€","") or ""}}
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Spese Trasporto") }}: </p> 
+            <p>{{ doc.get_formatted("shipping_amount")|replace("€", "") or "" }} </p>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Spese Incasso") }}: </p>
+            <p> {{doc.get_formatted("collection_charges")|replace("€", "") or ""}}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p class="tipoDoc" >{{ _("Trasporto a cura del") }}: </p>
+            <!-- <p class="text-right"> {{ _(">Destinatario<") }}  </p> -->
+            <p class="text-right">{{doc.transportation_by_the or ""}} 
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Porto") }}: </p> 
+            <!-- <p class="text-right"> {{ _(">Assegnato<") }}  </p> -->
+            <p class="text-right"> {{doc.port or ""}} 
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Colli") }}: </p> 
+            <p class="text-right">  </p>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Aspetto Beni e Peso") }}: </p> 
+            <!-- <p class="text-right"> {{ _(">Cart<") }} </p>  -->
+            <p class="text-right">{{doc.heritage_and_weight_appearance or ""}}
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Date- Ora Tr.") }}: </p> <br>
+            <p class="text-right"> {{doc.get_formatted("transport_date") or ""}} </p>
+        </td>
+        <td>
+            <p class="tipoDoc" >{{ _("Totale Documento") }}: </p>
+            <p class="text-right"> {{doc.get_formatted("total")|replace("€", "") or ""}} </p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <p class="tipoDoc" > {{ _("Vettore- Conducente ") }}:  </p><br><br>
+        </td>
+        <td colspan="2">
+            <p class="tipoDoc" > {{ _("Firma Conducente") }}: </p> <br><br>
+        </td>
+        <td>
+            <p class="tipoDoc" > {{ _("Firma Destinatario") }}: </p> <br><br>
+        </td>
+        <td>
+            <p class="tipoDoc"> <b>{{ _("Netto a Pagare") }}: </b> </p>
+            <p> {{doc.get_formatted("grand_total")|replace("€", "") or ""}}</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <p class="tipoDoc" > {{ _("Annotazioni") }}:</p>
+            <p class="text-right">{{doc.note or ""}}  </p> <br>
+        </td>
+        <td colspan="2">
+            <p class="tipoDoc" > {{ _("Scadenze") }}:</p> 
+            <p class="text-right"> {{doc.get_formatted("due_date")}}</p> <br><br>
+        </td>
+    </tr>
+</table>
