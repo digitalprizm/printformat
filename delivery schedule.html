@@ -1,0 +1,56 @@
+<style>
+	.print-format table, .print-format tr, 
+	.print-format td, .print-format div, .print-format p {
+		font-family: Monospace;
+		line-height: 200%;
+		vertical-align: middle;
+	}
+	@media screen {
+		.print-format {
+			width: 4in;
+			padding: 0.25in;
+			min-height: 8in;
+		}
+	}
+</style>
+
+<!-- <p class="text-center">
+
+</p>
+
+<div class="pull-right" style="max-width: 20%; margin-right: 10px;">
+   <img src="http://www.barcodes4.me/barcode/qr/myfilename.png?value=Delivery Order:{{ doc.name }}, Customer: {{ doc.customer_ref }}" style="max-width: 100%">
+</div>
+   Date: 12-12-2222<br>
+   Date: 12-12-2222<br>
+   Date: 12-12-2222<br>
+   Date: 12-12-2222<br>
+
+<hr> -->
+   <div class="row">
+        <div class="col-xs-12">
+    		<div class="row " style=" margin-left: 10px;">
+    			<h2>Delivery order: {{ doc.delivery_note_no }}</h2><!-- <h2 class="pull-right">{{ doc.name }}</h2> -->
+    		</div>
+    		<hr>
+    		<div class="row">
+    			<div class="col-xs-5">
+    			<label style="font-size: 14px">Ship To,</label><br>
+    			<b>Customer : </b>{{ doc.customer_ref }}<br>
+    			<b>Contact Person :</b> {{ doc.contact_person_name or ""}}<br>
+    			<b>Mobile No : </b>{{ doc.mobile_no or "" }}<br>
+    			<b>Email : </b>{{ doc.email or ""}}<br>
+    			<b>Lorry No :</b> {{ doc.lorry_no or "" }}<br>
+
+    				
+    			</div>
+    			<div class="col-xs-7 text-right">
+    				<div class="pull-right" style=" margin-right: 10px;">
+   						<img src="http://www.barcodes4.me/barcode/qr/myfilename.png?value=Delivery Order:{{ doc.name }}, Customer: {{ doc.customer_ref }}" style="width: 100px">
+					</div>
+    			</div>
+    		</div>
+    		
+    	</div>
+    </div>
+<hr>

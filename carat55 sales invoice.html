@@ -1,0 +1,246 @@
+{%- from "templates/print_formats/standard_macros.html" import add_header,
+render_field -%}
+<div id="header-html" class="hidden-pdf"></div>
+    <div class="row" style="padding: 10px 0px;">        
+        <div class="col-xs-6"> 
+            <img src="/files/Carat55Logo.png" alt = "carat55Logo" class="img-responsive" width="231">
+        </div>
+       
+        <div class="col-xs-6"> 
+          
+            <h2 class="text-right" style="position: absolute;right: 13px;top: 20px;">INVOICE</h2>
+        </div>
+        <div >
+        </div>
+    </div>               
+
+<div id="footer-html" class="visible-pdf">
+    {% if not no_letterhead and footer %}
+    <div class="letter-head-footer">
+        {{ footer }}
+    </div>
+    {% endif %}
+    <hr>
+    <div class="row" style ="color:blue; font-size: 10px;">
+        <div class = "col-xs-12">
+            <p class="text-right small page-number visible-pdf" style="text-align: right;color:black !important;">
+              {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+            </p>
+       
+            <p class="text-left" style="margin-top: -15px">
+                <span style="color:blue !important;"> Website:  http://carat55.com</span>
+            </p>
+                
+            <p class="">
+                 <span style="color:#0ea90e !important;"> Date : {{ doc.get_formatted("posting_date") or ''}} <span>
+            </p>
+        </div>
+    </div>
+</div>
+
+    <div class="print-heading">
+        <div class= "row">
+            <div class="col-xs-6">
+
+</div>
+
+<div class="col-xs-6 text-right margTop">
+
+   
+</div>
+</div>
+</div>
+
+
+
+
+
+<div class="row" style="margin-top:5px;">        
+     <div class="col-xs-6">            
+        <div class="row">
+            <div class="col-xs-12"><label>To,</label>{{ doc.customer_name }}</div>
+            <div class="col-xs-12" style="margin-top: 8px;"><label>Address:</label>{{ doc.address_display or ''}}</div>
+    
+        </div>       
+  
+    </div>
+
+    <div class="col-xs-6">
+        <div class="row">
+            <div class="col-xs-12 text-right"><label>Date: {{ doc.get_formatted("posting_date") or ''}}</label></div>
+            <div class="col-xs-12 text-right"><label>Invoice#: {{ doc.name }}</label></div>
+
+        </div>    
+    </div>            
+</div>
+
+
+
+<div class="row">
+    <div class="col-xs-12 text-left">
+        <h6 style="margin-top: 0px;"><label>Your Jewellery Box includes:</label></h6>
+    </div>
+</div>
+
+
+
+
+<table class="table table-condensed table-bordered tableCentered" style="margin-top:2px;">
+    <tr >
+        <th style="text-align: center;background-color:#f1e4e4!important;">Sr.</th>
+        <th style="text-align: center;background-color:#f1e4e4!important;">SKU (image)</th>
+        <th style="text-align: center;background-color:#f1e4e4!important;">Item Code</th>
+        <th style="text-align: center;background-color:#f1e4e4!important;" >SKU Name/Type</th>
+        <th style="text-align: center;background-color:#f1e4e4!important;">QTY</th>
+        <th style="text-align: center;background-color:#f1e4e4!important;">Price</th>
+<!--         <th style="text-align: center;background-color:#f1e4e4!important;">Amount</th> -->
+    </tr>
+    {%- for row in doc.items -%}
+    <tr>
+        <td style="width: 4%; text-align: center;">{{ row.idx }}</td>
+        <td style="width: 26%;font-weight: normal;font-size:11px;line-height:12px; text-align: center;">
+            {% if row.in_format_data("image") and row.get("image") -%}
+            
+                <div class="value">
+                    <img src="{{ row.image }}" class="img-responsive" style="width: 160px !important;margin: auto;  padding: 10px !important;">
+                </div>
+            {%- endif %} 
+
+          <br>
+            </td>
+            <td style="width: 22%; text-align: center;">{{ row.item_code or '' }}</td>
+            <td style="width: 30%; text-align: left;">{{ row.description or '' }}</td>
+            <td style="width: 4%; text-align: right;">{{ row.qty }}</td>
+
+            <td style="width: 14%; text-align: right;">
+                {{ row.get_formatted("rate",row) or '' }} 
+            </td>
+           <!--  <td style="width: 14%; text-align: right;">
+                {{ row.get_formatted("amount",row) or '' }} 
+            </td> -->
+        </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+
+<div class="row">
+    <div class="col-xs-6" style="top:49px;">{{ doc.in_words or ""}}
+{% set customer = frappe.get_doc("Customer", doc.customer) %}
+
+{% if customer.vat_tin_number %}
+<label>VAT TIN No. <span>{{ customer.vat_tin_number }}</span></label>
+{% endif %}
+{% if customer.cst_tin_number %}
+<label>CST TIN No. <span>{{ customer.cst_tin_number }}</span></label>
+{% endif %}
+</div>
+    <div class="col-xs-6 text-right">
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Total") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("total") or '' }}
+            </div>
+        </div>
+        {%- for row in doc.taxes -%}
+        {%- if not row.included_in_print_rate -%}
+        {%- if row.tax_amount -%}   
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ row.description }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ row.get_formatted("tax_amount",doc) or '' }}
+            </div>
+        </div>
+        {%- endif -%}
+        {%- endif -%}
+        {%- endfor -%}
+
+        {%- if doc.discount_amount -%}
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Discount") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                {{ doc.get_formatted("discount_amount") or '' }}
+            </div>
+        </div>
+        {%- endif -%}
+
+
+        <hr>
+        <div class="row">
+            <div class="col-xs-7  text-right">
+                <label>{{ _("Grand Total") }}</label>  
+            </div>
+            <div class="col-xs-5 text-right">
+                <b> {{ doc.get_formatted("rounded_total") or '' }}</b>
+            </div>
+        </div>
+
+    </div>
+</div> 
+
+
+
+<br>
+<br>
+<br>
+<br>
+{%- if doc.is_return ==0 -%}
+<div class="row">
+    <div class="col-xs-12 text-left">Notes: <br>{{ doc.terms or '' }}</div>
+</div>
+
+
+{%- endif -%}
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+<div class ="col-xs-3" style="margin-top:-50px;text-align: center;border-top: 1px solid #000;">
+        
+        <h5 style="margin-top: 0px; margin-bottom: 0px; font-size:13px;padding-right: 0px; 
+     padding-left: 0px;"><b>Signature</b></h5>
+    </div>
+
+
+   
+
+</div> 
+<div class = "row">
+    <div class ="col-xs-12 text-right">
+       <p style = "line-height:12px;color:#4169e3 !important;font-weight:400px!important; font-size:10px;">
+       <br></p>
+    </div>
+</div>
+
+
+ <style type="text/css">
+     .print-heading {  
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+    border-bottom: 0.80pt solid #000 !important;
+
+}
+
+
+.table-bordered > thead > tr > th, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td{
+    border:0.80pt solid #000 !important;
+}
+
+hr {    
+    border-top: 0.80pt solid #000 !important;
+    margin-top: 0px;
+    margin-bottom: 1px;
+}
+ </style>

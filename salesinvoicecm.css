@@ -1,0 +1,106 @@
+div{
+color:#000;
+}
+.print-format td, .print-format th {
+    padding: 3px !important;
+}
+
+.titleAnaesthesia h1{
+  font-style: italic;
+margin-bottom:0px;
+}
+
+.titleAnaesthesia p{
+margin-top:0px;  
+margin-bottom:0px;
+font-weight:normal;
+}
+
+.regNumber p{
+ margin-top:60px;
+ padding-left: 0px;
+font-size:10px;
+}
+
+
+.doctorAddress{
+margin-top:45px;
+margin-bottom:45px;
+}
+
+.doctorAddress h5, .timeDate h5{
+padding:0px;
+}
+
+.ContentBold{
+font-weight:bold;
+text-align:left;
+}
+.empDetails{
+line-height:18px;
+}
+
+.hospitalDepartment{
+margin-bottom:20%;
+}
+
+
+.hospitalAddress{
+margin-bottom:34%;
+}
+.titleInvoice h3{
+ text-decoration: underline;
+margin-bottom:20px;
+}
+
+.borderEqual{
+border-top: 1px solid #000;
+border-bottom: 1px solid #000;
+}
+
+.empDetails{
+width:100%
+}
+
+.nettAmount td{
+text-align:right;
+}
+
+.empDetails td{
+text-align:left;
+}
+
+.empDetails td:last-child {
+    text-align:right !important;
+}
+
+hospitalChart td{
+text-align:left;
+}
+
+.invoiceNumber h4{
+font-weight:normal;
+margin-bottom:0px;
+}
+
+.invoiceNumber p{
+margin-bottom:0px;
+}
+
+.invoiceNumber span{
+font-size:15px;
+}
+
+.tableLeftPage tr,.tableLeftPage td, .tableLeftPage th{
+	border:0.5pt solid #8c9498 !important;
+}
+
+.borderRemove{
+	border-bottom: none !important;
+	border-left: none !important;
+}
+
+.theadColor th{
+	background-color: #525659 !important;
+	color: #fff !important;
+}

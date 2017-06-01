@@ -1,0 +1,241 @@
+
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%}
+
+{%- endmacro -%}
+
+		<div id="header-html" class="hidden-pdf">
+		</div>
+
+
+
+<div id="footer-html" class="visible-pdf">
+
+
+
+			
+				<div class="text-right small page-number visible-pdf">
+						{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+				</div>
+
+</div>
+
+<div class="row">
+
+
+
+	<div class="col-xs-12 text-center titleAnaesthesia">
+		<h1>{{ doc.company or ''}}</h1>
+		<p>{{ frappe.db.get_value("Company", doc.company, "address") or ''}}</p>
+		
+		<p>{{ frappe.db.get_value("Company", doc.company, "country") or ''}} - {{ frappe.db.get_value("Company", doc.company, "postal_code") or ''}}</p>
+		
+
+		<p class="regNumber">{{ _("CO.REG.NO:") }} {{ frappe.db.get_value("Company", doc.company, "company_reg_no") or ''}}   |   <i class="fa fa-phone-square" aria-hidden="true"></i>: {{ frappe.db.get_value("Company", doc.company, "phone_no") or ''}}  |  <i class="fa fa-phone" aria-hidden="true"></i>: {{ frappe.db.get_value("Company", doc.company, "contact_no") or ''}}  |  <i class="fa fa-envelope-o" aria-hidden="true"></i>: {{ frappe.db.get_value("Company", doc.company, "email") or ''}}</p>
+	</div>	
+</div>
+
+
+<div class=" row doctorAddress">
+	<div class="col-xs-7">
+		<table>
+			<tr>
+				<td style="font-size: 16px">{{ frappe.db.get_value("Patient", doc.patient, "full_name") or ''}}							
+				</td>
+			</tr>
+
+			<tr>
+				<td>{{ _("PID:") }} {{ frappe.db.get_value("Patient", doc.patient, "name") or ''}}							
+				</td>
+			</tr>
+
+			 
+			<tr>
+				<td>{{ frappe.db.get_value("Patient", doc.patient, "address") or ''}}
+								
+				</td>
+			</tr>
+			
+
+			<tr>
+				<td>{{ frappe.db.get_value("Patient", doc.patient, "country") or ''}} - {{ frappe.db.get_value("Patient", doc.patient, "postal_code") or ''}}</td>
+			</tr>
+		</table>
+	</div>
+
+
+
+	<div class="col-xs-5 datePage">
+		
+
+		<table style="width:100%">
+			<tr>
+				<td></td>
+				<td></td>
+				<td style="font-size: 20px; font-weight: bold;">INVOICE</td>
+			</tr>
+			<tr>
+				<td style="font-weight: bold;">{{ _("DATE") }}</td>
+				<td>:</td>
+				<td>{{ frappe.utils.formatdate(doc.posting_date, 'dd-MMM-YYYY') or ''}}</td>
+			</tr>	
+			
+					
+			<tr>
+				<td style="font-weight: bold;">{{ _("INVOICE NO") }}</td>
+				<td>:</td>
+				<td>{{doc.name or ''}}</td>
+			</tr>
+		</table>	
+	</div>
+</div>
+
+
+<div class="col-xs-12 tableLeftPage">
+		
+
+		<table class="table " style="width:100%; margin-bottom: 2px;">
+			<thead class="thead-default theadColor">
+				<tr>
+					<th style="width:50%;text-align: center;">DESCRIPTION</th>
+					<th colspan="2" style="width:50%;text-align: center;">AMOUNT</th>
+				</tr>
+			</thead>
+
+		{% for row in doc.items %}
+			<tr>
+				
+				<td class="spaCe" style="width:50%"><p>{{ row.item_name }}</p></td>
+				<td colspan="2" class="text-right" style="width:50%"><p>{{ row.get_formatted("amount", doc)  }}</p></td>
+			</tr>
+		{% endfor %}
+			
+
+			<tr class="borderRemove" style="border-bottom: none !important;border-left: none !important;">
+				<td class="borderRemove" rowspan="3" style="border-bottom: none !important;border-left: none !important;"></td>
+				<td style="width: 25%"><b>{{ _("SUBTOTAL") }}</b></td>
+				<td style="text-align: right;">{{ doc.get_formatted("total") or '' }}</td>
+			</tr>
+			 {%- for row in doc.taxes -%}
+			 {%- if not row.included_in_print_rate -%}
+ 		     {%- if row.tax_amount -%}  
+			<tr>
+				<!-- <td></td> -->
+				<td style="width: 25%"><b>{{ row.description }} (7%)</b></td>
+				<td style="text-align: right;">{{ row.get_formatted("tax_amount", doc) }}</td>		
+			</tr>
+			 {%- endif -%}
+		     {%- endif -%}
+			 {%- endfor -%}
+
+			<tr>
+				<!-- <td></td> -->
+				<td style="width: 25%"><b>{{ _("NET AMOUNT DUE") }}</b></td>
+				<td style="text-align: right;"><b>{{ doc.get_formatted("grand_total") or '' }}</b></td>
+			</tr>
+			
+		</table>	
+	</div>
+
+
+
+
+
+<br/>
+
+<div class="col-xs-8 text-left">
+	<div><br/>
+		<br/>
+		<br/>
+		<table style="line-height: 25px;">
+
+			<tr>				
+				<td style="font-size: 12px; font-weight: bold;">CASE DETAILS</td>
+				<td></td>
+				<td></td>
+			</tr>
+
+			<tr>
+				<td>{{ _("Hospital / Clinic") }}</td>
+				<td>:</td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "hospital") or ''}}</td>
+			</tr>
+
+			<tr>
+				<td> Anaesthetist / Doctor </td>
+				<td>:</td>
+				<td>Dr. {{ frappe.db.get_value("Case", doc.case, "doctor") or ''}}</td>
+			</tr>
+
+			<tr>
+				<td>{{ _("Surgeon / Physcian") }}</td>
+				<td>:</td>
+				<td>Dr. {{ frappe.db.get_value("Case", doc.case, "surgeon") or ''}}</td>
+			</tr>
+			{% set case = frappe.get_doc("Case", doc.case) %}
+			{%- if case.surgeon_1  -%}
+			<tr>
+				<td></td>
+				<td></td>
+				<td>Dr. {{ case.surgeon_1 or ''}}</td>
+			</tr>
+			{%- endif -%}
+			{%- if case.surgeon_2  -%}
+			<tr>
+				<td></td>
+				<td></td>
+				<td>Dr. {{ case.surgeon_2 or '' }}</td>
+			</tr>
+			{%- endif -%}
+			<tr>
+				<td>{{ _("Operation Type") }}</td>
+				<td>:</td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "operation_type") or ''}}</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "additional_info") or ''}}</td>
+			</tr>
+			<tr>
+				<td>{{ _("Procedure Type") }}</td>
+				<td>:</td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "procedure_type") or ''}}</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "padditional_info") or ''}}</td>
+			</tr>
+            
+            <tr>
+				<td>{{ _("Operation Date") }}</td>
+				<td>:</td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "appointment_date").strftime('%d-%b-%Y') or ''}}</td>
+			</tr>
+
+			<tr>				
+				<td style="font-size: 12px; font-weight: bold;">NOTES</td>
+				<td>:</td>
+				<td>{{ frappe.db.get_value("Case", doc.case, "note") or ''}}</td>
+			</tr>
+
+			<tr>
+				<td>{{ _("INVOICE NO") }}</td>
+				<td>:</td>
+				<td>{{doc.name or ''}}</td>
+			</tr>
+
+
+	   </table>
+	   
+	</div>
+</div>
+<div class=" row col-xs-12 invoiceNumber">
+				
+				<p>{{ _("Please make crossed cheque payable within 14 days to") }}&nbsp;&nbsp;<span>{{ doc.company }}</span></p>
+				<P>{{ _("Please quote invoice no. on reserve side of cheque") }}</P>
+</div>
+
+<div class="row col-xs-12 text-center"> 
+				<p><b>{{ _("E & O.E") }}</b></p>	
+</div>
