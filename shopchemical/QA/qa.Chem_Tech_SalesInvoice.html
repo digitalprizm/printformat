@@ -1,0 +1,257 @@
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%} {% if letter_head and not no_letterhead %}
+{{ letter_head }}
+{% endif %} {%- if doc.meta.is_submittable and doc.docstatus==0-%}
+{{ _("DRAFT") }}
+{%- endif -%} {%- if doc.meta.is_submittable and doc.docstatus==1-%} {%- endif -%} {%- if doc.meta.is_submittable and doc.docstatus==2-%}
+{{ _("CANCELLED") }}
+{%- endif -%} {% if max_pages > 1 %} {{ _("Page #{0} of {1}").format(page_num, max_pages) }} {% endif %} {%- endmacro -%}
+{{ add_header(0,1,doc,letter_head, no_letterhead) }}
+{% if not no_letterhead and footer %}
+{{ footer }}
+{% endif %}
+{{ _("Page {0} of {1}").format('', '') }}
+
+{%- if doc.company =="ChemTech AE" -%}
+Tax Invoice 
+{{ doc.name }}
+{%- else -%}
+Sales Invoice 
+{{ doc.name }}
+{%- endif -%}
+
+Customer Copy
+Customer Name
+{{ doc.customer }}
+{%- if doc.tax_id -%}
+TRN
+{{ doc.tax_id or ''}}
+{%- endif -%}
+Address
+{{ doc.address_display or ''}}
+Contact
+{{ doc.contact_display or ''}}
+Mobile No.
+{{ doc.contact_mobile or ''}}
+Date
+{{ doc.get_formatted("posting_date") or '' }}
+Payment Due Date
+{{ doc.get_formatted("due_date") or '' }}
+Order No
+{{ doc.name or ''}}
+{%- if doc.is_return ==1 -%}
+Credit Note Against:
+{{ doc.return_against or ''}}
+{%- endif -%} {%- if doc.items[0].delivery_note -%}
+Delivery Note
+{{ doc.items[0].delivery_note or ''}}
+{%- endif -%} {%- if doc.job_number -%}
+Job Number
+{{ doc.job_number or ''}}
+{%- endif -%} {%- if doc.items[0].sales_order -%} {% set so = frappe.get_doc("Sales Order", doc.items[0].sales_order) %}
+Customer's PO
+{{ so.po_no or ''}}
+{%- elif doc.po_no -%}
+Customer's PO
+{{ doc.po_no or ''}}
+{%- endif -%} {%- if doc.po_date -%}
+PO Date
+{{ doc.get_formatted("po_date") or ''}}
+{%- endif -%} {% set user = frappe.get_doc("User", doc.owner) %}
+Created By
+{{ user.first_name }}
+{% set uprint = frappe.get_doc("User", frappe.user) %}
+Print By
+{{ uprint.first_name }}
+{%- for row in doc.items -%} {%- endfor -%}
+Sr	Description	Quantity	Rate	Amount
+{{ row.idx }}	{{ row.description or '' }}	{{ row.qty }}	{{ row.get_formatted("rate", doc) or ''}}	{{ row.get_formatted("amount", doc) or ''}}
+{{ _("Total") }}
+{{ doc.get_formatted("total") or '' }}
+{%- for row in doc.taxes -%} {%- if not row.included_in_print_rate -%} {%- if row.tax_amount -%}
+{{ row.description }}
+{{ row.get_formatted("tax_amount",doc) or '' }}
+{%- endif -%} {%- endif -%} {%- endfor -%} {%- if doc.discount_amount -%}
+{{ _("Discount") }}
+{{ doc.get_formatted("discount_amount") or '' }}
+{%- endif -%}
+{{ _("Rounded Total") }}
+{{ doc.get_formatted("total") or '' }}
+{{ _("Grand Total") }}
+{{ doc.get_formatted("grand_total") or '' }}
+
+{%- if doc.is_return ==0 -%}
+{{ doc.terms or '' }}
+{%- endif -%} 
+
+Received By
+Prepared By 
+Administrator
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%} {% if letter_head and not no_letterhead %}
+{{ letter_head }}
+{% endif %} {%- if doc.meta.is_submittable and doc.docstatus==0-%}
+{{ _("DRAFT") }}
+{%- endif -%} {%- if doc.meta.is_submittable and doc.docstatus==1-%} {%- endif -%} {%- if doc.meta.is_submittable and doc.docstatus==2-%}
+{{ _("CANCELLED") }}
+{%- endif -%} {% if max_pages > 1 %} {{ _("Page #{0} of {1}").format(page_num, max_pages) }} {% endif %} {%- endmacro -%}
+{{ add_header(0,1,doc,letter_head, no_letterhead) }}
+{% if not no_letterhead and footer %}
+{{ footer }}
+{% endif %}
+{{ _("Page {0} of {1}").format('', '') }}
+
+{%- if doc.company =="ChemTech AE" -%}
+Tax Invoice 
+{{ doc.name }}
+{%- else -%}
+Sales Invoice 
+{{ doc.name }}
+{%- endif -%}
+
+Supplier Copy
+Customer Name
+{{ doc.customer }}
+{%- if doc.tax_id -%}
+TRN
+{{ doc.tax_id or ''}}
+{%- endif -%}
+Address
+{{ doc.address_display or ''}}
+Contact
+{{ doc.contact_display or ''}}
+Mobile No.
+{{ doc.contact_mobile or ''}}
+Date
+{{ doc.get_formatted("posting_date") or '' }}
+Payment Due Date
+{{ doc.get_formatted("due_date") or '' }}
+Order No
+{{ doc.name or ''}}
+{%- if doc.is_return ==1 -%}
+Credit Note Against:
+{{ doc.return_against or ''}}
+{%- endif -%} {%- if doc.items[0].delivery_note -%}
+Delivery Note
+{{ doc.items[0].delivery_note or ''}}
+{%- endif -%} {%- if doc.items[0].sales_order -%} {% set so = frappe.get_doc("Sales Order", doc.items[0].sales_order) %}
+Customer's PO
+{{ so.po_no or ''}}
+{%- elif doc.po_no -%}
+Customer's PO
+{{ doc.po_no or ''}}
+{%- endif -%} {%- if doc.po_date -%}
+PO Date
+{{ doc.get_formatted("po_date") or ''}}
+{%- endif -%} {% set user = frappe.get_doc("User", doc.owner) %}
+Created By
+{{ user.first_name }}
+{% set uprint = frappe.get_doc("User", frappe.user) %}
+Print By
+{{ uprint.first_name }}
+{%- for row in doc.items -%} {%- endfor -%}
+Sr	Description	Quantity	Rate	Amount
+{{ row.idx }}	{{ row.description or '' }}	{{ row.qty }}	{{ row.get_formatted("rate", doc) or ''}}	{{ row.get_formatted("amount", doc) or ''}}
+{{ _("Total") }}
+{{ doc.get_formatted("total") or '' }}
+{%- for row in doc.taxes -%} {%- if not row.included_in_print_rate -%} {%- if row.tax_amount -%}
+{{ row.description }}
+{{ row.get_formatted("tax_amount",doc) or '' }}
+{%- endif -%} {%- endif -%} {%- endfor -%} {%- if doc.discount_amount -%}
+{{ _("Discount") }}
+{{ doc.get_formatted("discount_amount") or '' }}
+{%- endif -%}
+{{ _("Rounded Total") }}
+{{ doc.get_formatted("total") or '' }}
+{{ _("Grand Total") }}
+{{ doc.get_formatted("grand_total") or '' }}
+
+{%- if doc.is_return ==0 -%}
+{{ doc.terms or '' }}
+{%- endif -%} 
+
+Received By
+Prepared By 
+Administrator
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%} {% if letter_head and not no_letterhead %}
+{{ letter_head }}
+{% endif %} {%- if doc.meta.is_submittable and doc.docstatus==0-%}
+{{ _("DRAFT") }}
+{%- endif -%} {%- if doc.meta.is_submittable and doc.docstatus==1-%} {%- endif -%} {%- if doc.meta.is_submittable and doc.docstatus==2-%}
+{{ _("CANCELLED") }}
+{%- endif -%} {% if max_pages > 1 %} {{ _("Page #{0} of {1}").format(page_num, max_pages) }} {% endif %} {%- endmacro -%}
+{{ add_header(0,1,doc,letter_head, no_letterhead) }}
+{% if not no_letterhead and footer %}
+{{ footer }}
+{% endif %}
+{{ _("Page {0} of {1}").format('', '') }}
+
+{%- if doc.company =="ChemTech AE" -%}
+Tax Invoice 
+{{ doc.name }}
+{%- else -%}
+Sales Invoice 
+{{ doc.name }}
+{%- endif -%}
+
+Customer Name
+{{ doc.customer }}
+{%- if doc.tax_id -%}
+TRN
+{{ doc.tax_id or ''}}
+{%- endif -%}
+Address
+{{ doc.address_display or ''}}
+Contact
+{{ doc.contact_display or ''}}
+Mobile No.
+{{ doc.contact_mobile or ''}}
+Date
+{{ doc.get_formatted("posting_date") or '' }}
+Payment Due Date
+{{ doc.get_formatted("due_date") or '' }}
+Order No
+{{ doc.name or ''}}
+{%- if doc.is_return ==1 -%}
+Credit Note Against:
+{{ doc.return_against or ''}}
+{%- endif -%} {%- if doc.items[0].delivery_note -%}
+Delivery Note
+{{ doc.items[0].delivery_note or ''}}
+{%- endif -%} {%- if doc.items[0].sales_order -%} {% set so = frappe.get_doc("Sales Order", doc.items[0].sales_order) %}
+Customer's PO
+{{ so.po_no or ''}}
+{%- elif doc.po_no -%}
+Customer's PO
+{{ doc.po_no or ''}}
+{%- endif -%} {%- if doc.po_date -%}
+PO Date
+{{ doc.get_formatted("po_date") or ''}}
+{%- endif -%} {% set user = frappe.get_doc("User", doc.owner) %}
+Created By
+{{ user.first_name }}
+{% set uprint = frappe.get_doc("User", frappe.user) %}
+Print By
+{{ uprint.first_name }}
+{%- for row in doc.items -%} {%- endfor -%}
+Sr	Description	Quantity	Rate	Amount
+{{ row.idx }}	{{ row.description or '' }}	{{ row.qty }}	{{ row.get_formatted("rate", doc) or ''}}	{{ row.get_formatted("amount", doc) or ''}}
+{{ _("Total") }}
+{{ doc.get_formatted("total") or '' }}
+{%- for row in doc.taxes -%} {%- if not row.included_in_print_rate -%} {%- if row.tax_amount -%}
+{{ row.description }}
+{{ row.get_formatted("tax_amount",doc) or '' }}
+{%- endif -%} {%- endif -%} {%- endfor -%} {%- if doc.discount_amount -%}
+{{ _("Discount") }}
+{{ doc.get_formatted("discount_amount") or '' }}
+{%- endif -%}
+{{ _("Rounded Total") }}
+{{ doc.get_formatted("total") or '' }}
+{{ _("Grand Total") }}
+{{ doc.get_formatted("grand_total") or '' }}
+
+{%- if doc.is_return ==0 -%}
+{{ doc.terms or '' }}
+{%- endif -%} 
+
+Received By
+Prepared By 
+Administrator

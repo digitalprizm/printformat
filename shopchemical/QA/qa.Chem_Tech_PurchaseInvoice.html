@@ -1,0 +1,237 @@
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%}
+        {% if letter_head and not no_letterhead %}
+        <div class="letter-head">
+         {{ letter_head }}
+  
+        </div>
+        {% endif %}
+        {%- if doc.meta.is_submittable and doc.docstatus==0-%}
+        <div class="alert alert-info text-center">
+            <h4 style="margin: 0px;">{{ _("DRAFT") }}</h4></div>
+        {%- endif -%}
+                {%- if doc.meta.is_submittable and doc.docstatus==1-%}
+        {%- endif -%}
+        {%- if doc.meta.is_submittable and doc.docstatus==2-%}
+        <div class="alert alert-danger text-center">
+            <h4 style="margin: 0px;">{{ _("CANCELLED") }}</h4></div>
+        {%- endif -%}
+              
+    {% if max_pages > 1 %}
+    <p style="float:right">{{ _("Page #{0} of {1}").format(page_num, max_pages) }}</p>
+    {% endif %}
+{%- endmacro -%}
+    <div id="header-html" class="hidden-pdf">
+                 {{ add_header(0,1,doc,letter_head, no_letterhead) }}
+    </div>
+<div>
+    <div id="footer-html" class="visible-pdf">
+        {% if not no_letterhead and footer %}
+        <div class="letter-head-footer">
+            {{ footer }}
+        </div>
+        {% endif %}
+        <p class="text-center small page-number visible-pdf">
+            {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}
+        </p>
+    </div>
+
+    <div class="print-heading">
+            <div class= "row">
+                <div class="col-xs-6">
+                    <h2>Purchase Invoice <br>
+                        <small>{{ doc.name  or ''}}</small>
+                    </h2>
+                </div>
+            
+                <div class="col-xs-6 text-right">
+                    <div class="row">
+                        <h2><br></h2>
+                    </div>
+                    
+                </div>
+            </div>
+    </div>
+    <div class="row">        
+         <div class="col-xs-6">           
+            <div class="row">
+                <div class="col-xs-5 text-right"><label>Supplier Name</label></div>
+                <div class="col-xs-7" style="font-size: 14px">
+                    <b>{{ doc.supplier_name or ''}}</b> 
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col-xs-5 text-right"><label>Due Date</label></div>
+                <div class="col-xs-7" style="font-size: 14px">
+                 {{ frappe.utils.formatdate(doc.due_date, 'dd-MMM-YYYY') or ''}} 
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col-xs-5 text-right"><label>Address</label></div>
+                <div class="col-xs-7 ">{{ doc.address_display or ''}}</div>
+            </div>         
+        </div>
+            
+    </div>
+</div>
+        
+<table class="table table-condensed table-bordered">
+        <tr>
+            <th>Sr</th>
+            <th>Description</th>
+            <th class="text-right">Quantity</th>
+            <th class="text-right">Rate</th>
+            <th class="text-right">Amount</th>
+        </tr>
+        {%- for row in doc.items -%}
+        <tr>
+            <td style="width: 3%;">{{ row.idx }}</td>
+            <td style="width: 57%;">
+                 <b>{{ row.item_code or '' }} </b><br>
+                 {{ row.description or '' }}  </td>
+            <td style="width: 10%; text-align: right;">{{"{0:.2f}".format(row.qty) or '' }}</td>
+            <td style="width: 15%; text-align: right;">
+                
+                {{ row.get_formatted("rate", doc) or ''}}
+            <td style="width: 15%; text-align: right;">{{
+                row.get_formatted("amount", doc) or ''}}</td>
+        </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+   
+<div class="row">
+    <div class="col-xs-6 text-right"></div>
+    <div class="col-xs-6 text-right">
+        <div class="row">
+            <div class="col-xs-6">
+                <label>{{ _("Total") }}</label>  
+            </div>
+            <div class="col-xs-6 text-right">
+                {{ doc.get_formatted("total") or '' }}
+            </div>
+
+        </div>
+    </div>
+</div>  
+
+{%- for row in doc.taxes -%}
+    {%- if not row.included_in_print_rate -%}
+    {%- if row.tax_amount -%}      
+
+    <div class="row">
+        <div class="col-xs-6 text-right"></div>
+        <div class="col-xs-6 text-right">
+            <div class="row">
+                <div class="col-xs-6">
+                    <label>{{ row.description }}</label>  
+                </div>
+                <div class="col-xs-6 text-right" style="font-size:15px">
+                    <b>{{ row.get_formatted("tax_amount",doc) or '' }}</b>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+
+{%- if doc.discount_amount -%}
+    <div class="row">
+        <div class="col-xs-6 text-right"></div>
+        <div class="col-xs-6 text-right">
+            <div class="row">
+                <div class="col-xs-6">
+                    <label>{{ _("Discount") }}</label>  
+                </div>
+                <div class="col-xs-6 text-right" style="font-size:15px">
+                    <b>{{ doc.get_formatted("discount_amount") or '' }}</b>
+                </div>
+            </div>
+        </div>
+    </div>  
+ {%- endif -%}         
+
+<div class="row">
+    <div class="col-xs-6 text-right"></div>
+    <div class="col-xs-6 text-right">
+        <div class="row">
+            <div class="col-xs-6">
+                <label>{{ _("Rounded Total") }}</label>  
+            </div>
+            <div class="col-xs-6 text-right" style="font-size:14px">
+                <b>{{ doc.get_formatted("total") or '' }}</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-6 text-right"></div>
+    <div class="col-xs-6 text-right">
+        <div class="row">
+            <div class="col-xs-6">
+                <label>{{ _("Grand Total") }}</label>  
+            </div>
+            <div class="col-xs-6 text-right" style="font-size:14px">
+                <b>{{ doc.get_formatted("grand_total") or '' }}</b>
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="row">
+    <div class="col-xs-6 text-right"></div>
+    <div class="col-xs-6">
+        <div class="row">
+            <div class="col-xs-6 text-right">
+                <label>{{ _("In Words") }}</label>  
+            </div>
+            <div class="col-xs-6" style="font-size:14px">
+                {{ doc.get_formatted("in_words") or '' }}
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="row">
+    <div class="col-xs-6 text-right"></div>
+    <div class="col-xs-6 text-right">
+        <div class="row">
+            <div class="col-xs-6">
+                <label>{{ _("Printing Language") }}</label>  
+            </div>
+            <div class="col-xs-6 text-right" style="font-size:14px">
+                {{ doc.get_formatted("language") or '' }}
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="row">
+    <div class="col-xs-6 text-right"></div>
+    <div class="col-xs-6 text-right">
+        <div class="row">
+            <div class="col-xs-6">
+                <label>{{ _("Status") }}</label>  
+            </div>
+            <div class="col-xs-6 text-right" style="font-size:14px">
+                {{ doc.get_formatted("status") or '' }}
+            </div>
+        </div>
+    </div>
+</div> 
+
+<br>
+{%- if doc.is_return ==0 -%}
+    <div class="row">
+     <div class="col-xs-12 text-left">{{ doc.terms or '' }}</div>
+    </div>
+{%- endif -%}
+
+<br></br>
+<div class="row">
+ <div class="col-xs-6">Received By</div>
+ <div class="col-xs-6 text-right">Prepared By
+<br>Administrator</br></div>
+
+</div>  
+
