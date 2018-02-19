@@ -4,28 +4,43 @@
         and doc.set("select_print_heading", _("Payment Receipt Note")) -%}{%- endif -%}
     {{ add_header(0, 1, doc, letter_head, no_letterhead, print_settings) }}
 
-<div class="row">
+    <div class="row">
         <div class="col-xs-3">
-            <label class="text-right">Received On</label></div>
-        <div class="col-xs-9">{{ doc.get_formatted("posting_date") }}</div>
-</div>
-<div class="row">
-        <div class="col-xs-3">
-            <label class="text-right">Received From</label></div>
-        <div class="col-xs-9">{{ doc.accounts[0].get_formatted("account") }}</div>
-</div>
-<div class="row">
-        <div class="col-xs-3">
-            <label class="text-right">Amount</label></div>
-        <div class="col-xs-9">{{ doc.get_formatted("total_debit") }} 
-            <br>{{ frappe.utils.money_in_words(doc.total_debit,"QAR") }}
+            <label class="text-right">Received On</label>
         </div>
-</div>
-<div class="row">
+        <div class="col-xs-9">
+            {{ doc.get_formatted("posting_date") }}
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-xs-3">
-            <label class="text-right">Remarks</label></div>
-        <div class="col-xs-9">{{ doc.remark }}</div>
-</div>
+            <label class="text-right">Received From</label>
+        </div>
+        <div class="col-xs-9">
+            {{ doc.accounts[0].get_formatted("account") }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-3">
+            <label class="text-right">Amount</label>
+        </div>
+        <div class="col-xs-9">
+            {{ doc.get_formatted("total_debit") }} 
+            <br>
+            {{ frappe.utils.money_in_words(doc.total_debit,"QAR") }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-3">
+            <label class="text-right">Remarks</label>
+        </div>
+        <div class="col-xs-9">
+            {{ doc.remark }}
+        </div>
+    </div>
 
     <hr>
     <br>
